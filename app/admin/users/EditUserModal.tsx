@@ -2,10 +2,9 @@
 
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { UserRole, UserStatus } from "@prisma/client";
 import { updateUserAction, type UpdateUserState } from "../../actions/users";
 import PasswordInput from "../../components/PasswordInput";
-import { userRoleLabels, userStatusLabels } from "../../lib/models";
+import { UserRole, UserStatus, userRoleLabels, userStatusLabels } from "../../lib/enums";
 import type { UserRow } from "./UsersManager";
 
 type EditUserModalProps = {

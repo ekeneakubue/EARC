@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { UserRole, UserStatus } from "@prisma/client";
+import { UserRole, UserStatus, userRoleLabels, userStatusLabels } from "../../lib/enums";
 import { StatusBadge } from "../components/AdminUI";
-import { userRoleLabels, userStatusLabels } from "../../lib/models";
 import AddUserModal from "./AddUserModal";
 import DeleteUserModal from "./DeleteUserModal";
 import EditUserModal from "./EditUserModal";

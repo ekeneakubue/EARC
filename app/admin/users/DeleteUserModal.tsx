@@ -41,9 +41,11 @@ export default function DeleteUserModal({ user, onClose }: DeleteUserModalProps)
     return null;
   }
 
+  const userId = user.id;
+
   function handleDelete() {
     startTransition(async () => {
-      const result = await deleteUserAction(user.id);
+      const result = await deleteUserAction(userId);
 
       if (result.error) {
         setError(result.error);

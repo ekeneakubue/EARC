@@ -1,12 +1,15 @@
-import type { Service, ServiceStatus, User, UserRole, UserStatus } from "@prisma/client";
+import type { Service, User } from "@prisma/client";
+import type { ServiceStatus, UserRole, UserStatus } from "./enums";
 
+export type { User, Service } from "@prisma/client";
 export {
   UserRole,
   UserStatus,
   ServiceStatus,
-  type User,
-  type Service,
-} from "@prisma/client";
+  userRoleLabels,
+  userStatusLabels,
+  serviceStatusLabels,
+} from "./enums";
 
 export type CreateUserInput = {
   email: string;
@@ -42,24 +45,4 @@ export type UpdateServiceInput = {
   items?: string[];
   sortOrder?: number;
   status?: ServiceStatus;
-};
-
-export const userRoleLabels: Record<UserRole, string> = {
-  SUPER_ADMIN: "Super Admin",
-  ADMIN: "Admin",
-  EDITOR: "Editor",
-  TRAINER: "Trainer",
-  ANALYST: "Analyst",
-};
-
-export const userStatusLabels: Record<UserStatus, string> = {
-  ACTIVE: "Active",
-  INACTIVE: "Inactive",
-  PENDING: "Pending",
-};
-
-export const serviceStatusLabels: Record<ServiceStatus, string> = {
-  PUBLISHED: "Published",
-  DRAFT: "Draft",
-  ARCHIVED: "Archived",
 };

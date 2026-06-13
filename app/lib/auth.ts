@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import type { UserRole } from "@prisma/client";
+import type { UserRole } from "./enums";
 
 export const SESSION_COOKIE = "earc_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days

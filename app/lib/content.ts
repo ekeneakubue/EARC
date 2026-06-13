@@ -167,6 +167,16 @@ export const services = [
   },
 ] as const;
 
+export type Service = (typeof services)[number];
+
+export function getServiceById(id: string): Service | undefined {
+  return services.find((service) => service.id === id);
+}
+
+export function getAllServiceIds(): string[] {
+  return services.map((service) => service.id);
+}
+
 export const approach = {
   title: "Our Approach",
   intro:

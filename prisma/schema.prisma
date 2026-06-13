@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  TRAINER
+  ANALYST
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+enum ServiceStatus {
+  PUBLISHED
+  DRAFT
+  ARCHIVED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String     @map("password_hash")
+  role         UserRole   @default(EDITOR)
+  status       UserStatus @default(PENDING)
+  lastActiveAt DateTime?  @map("last_active_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+model Service {
+  id          String        @id
+  title       String
+  description String        @db.Text
+  note        String        @db.Text
+  items       String[]
+  sortOrder   Int           @default(0) @map("sort_order")
+  status      ServiceStatus @default(DRAFT)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([sortOrder])
+  @@map("services")
+}

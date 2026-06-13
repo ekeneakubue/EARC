@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 type ServiceCardProps = {
+  id: string;
   index: number;
   title: string;
   description: string;
@@ -66,6 +69,7 @@ const icons = [
 ];
 
 export default function ServiceCard({
+  id,
   index,
   title,
   description,
@@ -120,6 +124,23 @@ export default function ServiceCard({
       <p className="mt-6 border-t border-border pt-5 text-sm italic leading-relaxed text-muted">
         {note}
       </p>
+
+      <Link
+        href={`/services/${id}`}
+        className="mt-5 inline-flex items-center gap-2 self-start rounded-full border border-primary/20 bg-primary/5 px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:border-primary hover:bg-primary hover:text-white"
+      >
+        Read More ...
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </Link>
     </article>
   );
 }

@@ -1,6 +1,16 @@
 import AdminShell from "../components/AdminShell";
+import type { UserRole, UserStatus } from "../../lib/enums";
 import { prisma } from "../../lib/prisma";
 import UsersManager from "./UsersManager";
+
+type UserListRecord = {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  status: UserStatus;
+  lastActiveAt: Date | null;
+};
 
 function formatLastActive(date: Date | null) {
   if (!date) {
@@ -26,7 +36,7 @@ export default async function AdminUsersPage() {
     },
   });
 
-  const rows = users.map((user) => ({
+  const rows = users.map((user: UserListRecord) => ({
     id: user.id,
     name: user.name,
     email: user.email,

@@ -2,7 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
-import { UserStatus } from "@prisma/client";
+import { UserStatus } from "../lib/enums";
 import { createSession, deleteSession } from "../lib/auth";
 import { prisma } from "../lib/prisma";
 

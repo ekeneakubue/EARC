@@ -2,7 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import { UserRole, UserStatus } from "@prisma/client";
+import { UserRole, UserStatus } from "../lib/enums";
 import { getSession } from "../lib/auth";
 import { prisma } from "../lib/prisma";
 

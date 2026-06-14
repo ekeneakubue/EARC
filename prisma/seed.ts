@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { UserRole, UserStatus, ServiceStatus } from "@prisma/client";
+import { ServiceStatus, UserRole, UserStatus } from "../app/lib/enums";
 import bcrypt from "bcryptjs";
 import { services } from "../app/lib/content";
 import { prisma } from "../app/lib/prisma";

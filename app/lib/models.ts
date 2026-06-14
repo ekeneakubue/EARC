@@ -1,7 +1,29 @@
-import type { Service, User } from "@prisma/client";
 import type { ServiceStatus, UserRole, UserStatus } from "./enums";
 
-export type { User, Service } from "@prisma/client";
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+  passwordHash: string;
+  role: UserRole;
+  status: UserStatus;
+  lastActiveAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type Service = {
+  id: string;
+  title: string;
+  description: string;
+  note: string;
+  items: string[];
+  sortOrder: number;
+  status: ServiceStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export {
   UserRole,
   UserStatus,

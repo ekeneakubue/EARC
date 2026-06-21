@@ -1,21 +1,28 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
-import { getAllServiceIds, getServiceById, services, site } from "../../lib/content";
+import { site } from "../../lib/content";
+import {
+  getAllPublicServiceIds,
+  getPublicServiceById,
+  getRelatedPublicServices,
+} from "../../lib/service-data";
 
 type ServicePageProps = {
   params: Promise<{ id: string }>;
 };
 
 export async function generateStaticParams() {
-  return getAllServiceIds().map((id) => ({ id }));
+  const ids = await getAllPublicServiceIds();
+  return ids.map((id) => ({ id }));
 }
 
 export async function generateMetadata({ params }: ServicePageProps): Promise<Metadata> {
   const { id } = await params;
-  const service = getServiceById(id);
+  const service = await getPublicServiceById(id);
 
   if (!service) {
     return { title: "Service Not Found | EARC" };
@@ -29,14 +36,14 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
 
 export default async function ServiceDetailPage({ params }: ServicePageProps) {
   const { id } = await params;
-  const service = getServiceById(id);
+  const service = await getPublicServiceById(id);
 
   if (!service) {
     notFound();
   }
 
-  const currentIndex = services.findIndex((item) => item.id === id);
-  const relatedServices = services.filter((item) => item.id !== id).slice(0, 3);
+  const relatedServices = await getRelatedPublicServices(id);
+  const hasPricing = Boolean(service.amount || service.duration);
 
   return (
     <>
@@ -53,15 +60,42 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
               </svg>
               Back to Services
             </Link>
-            <p className="mt-6 text-sm font-semibold uppercase tracking-widest text-accent-light">
-              Service {String(currentIndex + 1).padStart(2, "0")}
-            </p>
-            <h1 className="mt-3 max-w-3xl font-display text-3xl font-bold leading-tight md:text-4xl lg:text-5xl">
-              {service.title}
-            </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/80">
-              {service.description}
-            </p>
+
+            <div className="mt-6 flex flex-col gap-8 md:flex-row md:items-start md:justify-between md:gap-12">
+              <div className="min-w-0 flex-1">
+                <h1 className="mt-3 max-w-3xl font-display text-3xl font-bold leading-tight md:text-4xl lg:text-5xl">
+                  {service.title}
+                </h1>
+                <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/80">
+                  {service.description}
+                </p>
+              </div>
+
+              {hasPricing && (
+                <div className="flex w-full shrink-0 flex-col gap-4 sm:flex-row md:w-80 md:flex-col lg:w-96">
+                  {service.amount && (
+                    <div className="flex-1 rounded-2xl border border-white/20 bg-white/10 px-6 py-5 shadow-lg">
+                      <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                        Amount
+                      </p>
+                      <p className="mt-2 font-display text-2xl font-bold text-accent-light md:text-3xl">
+                        {service.amount}
+                      </p>
+                    </div>
+                  )}
+                  {service.duration && (
+                    <div className="flex-1 rounded-2xl border border-white/20 bg-white/10 px-6 py-5 shadow-lg">
+                      <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                        Duration
+                      </p>
+                      <p className="mt-2 font-display text-2xl font-bold text-accent-light md:text-3xl">
+                        {service.duration}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
@@ -106,6 +140,19 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
             </div>
 
             <aside className="space-y-6">
+              {service.imageUrl && (
+                <div className="relative mx-auto aspect-square w-full max-w-xs overflow-hidden rounded-2xl border border-border bg-surface shadow-sm lg:max-w-none">
+                  <Image
+                    src={service.imageUrl}
+                    alt={service.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 320px, 384px"
+                    priority
+                  />
+                </div>
+              )}
+
               <div className="rounded-2xl bg-primary p-6 text-white">
                 <h3 className="font-display text-lg font-semibold">Request This Service</h3>
                 <p className="mt-3 text-sm leading-relaxed text-white/80">

@@ -18,6 +18,9 @@ export type Service = {
   description: string;
   note: string;
   items: string[];
+  amountNgn: number | null;
+  duration: string | null;
+  imageUrl: string | null;
   sortOrder: number;
   status: ServiceStatus;
   createdAt: Date;
@@ -56,6 +59,9 @@ export type CreateServiceInput = {
   description: string;
   note: string;
   items: string[];
+  amountNgn?: number | null;
+  duration?: string | null;
+  imageUrl?: string | null;
   sortOrder?: number;
   status?: ServiceStatus;
 };
@@ -65,6 +71,9 @@ export type UpdateServiceInput = {
   description?: string;
   note?: string;
   items?: string[];
+  amountNgn?: number | null;
+  duration?: string | null;
+  imageUrl?: string | null;
   sortOrder?: number;
   status?: ServiceStatus;
 };

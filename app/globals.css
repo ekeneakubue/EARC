@@ -65,3 +65,71 @@ body {
 .animate-fade-up-delay-2 {
   animation: fade-up 0.7s ease-out 0.3s both;
 }
+
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes green-gradient-flow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes green-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.05);
+  }
+}
+
+.animate-modal-backdrop {
+  animation: modal-backdrop-in 0.25s ease-out both;
+}
+
+.animate-modal-panel {
+  animation: modal-panel-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-green-gradient {
+  background-size: 200% 200%;
+  animation: green-gradient-flow 6s ease infinite;
+}
+
+.animate-green-glow {
+  animation: green-glow-pulse 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-modal-backdrop,
+  .animate-modal-panel,
+  .animate-green-gradient,
+  .animate-green-glow {
+    animation: none;
+  }
+}

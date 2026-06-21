@@ -54,12 +54,24 @@ export const story = {
   ],
 } as const;
 
-export const services = [
+export type ServiceContent = {
+  id: string;
+  title: string;
+  description: string;
+  items: readonly string[];
+  note: string;
+  amount?: string;
+  duration?: string;
+};
+
+export const services: readonly ServiceContent[] = [
   {
     id: "educational-research",
     title: "Educational Research and Consultancy",
     description:
       "We provide comprehensive educational consultancy services designed to improve the quality, effectiveness, and relevance of educational programs and institutions.",
+    amount: "From $2,500",
+    duration: "4–8 Weeks",
     items: [
       "Curriculum development",
       "Academic quality assurance",
@@ -165,9 +177,9 @@ export const services = [
     ],
     note: "We help decision-makers develop policies that are informed by scientific evidence, community needs, and sustainable development principles.",
   },
-] as const;
+];
 
-export type Service = (typeof services)[number];
+export type Service = ServiceContent;
 
 export function getServiceById(id: string): Service | undefined {
   return services.find((service) => service.id === id);

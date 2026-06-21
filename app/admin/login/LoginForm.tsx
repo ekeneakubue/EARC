@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import PasswordInput from "../../components/PasswordInput";
 import { loginAction, type LoginState } from "../../actions/auth";
 
@@ -10,9 +10,15 @@ const initialState: LoginState = {};
 export default function LoginForm() {
   const [state, formAction, pending] = useActionState(loginAction, initialState);
 
+  useEffect(() => {
+    if (state?.success) {
+      window.location.assign("/admin");
+    }
+  }, [state?.success]);
+
   return (
     <form action={formAction} className="space-y-6">
-      {state.error && (
+      {state?.error && (
         <div
           role="alert"
           className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"

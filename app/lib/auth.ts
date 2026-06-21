@@ -61,5 +61,5 @@ export async function getSession(): Promise<SessionUser | null> {
 
 export async function deleteSession() {
   const cookieStore = await cookies();
-  cookieStore.delete(SESSION_COOKIE);
+  cookieStore.delete({ name: SESSION_COOKIE, path: "/" });
 }

@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { UserRole, UserStatus } from "../lib/enums";
 import { getSession } from "../lib/auth";
+import { getDbErrorMessage, withDbRetry } from "../lib/db";
 import { prisma } from "../lib/prisma";
 
 export type CreateUserState = {
@@ -52,26 +53,34 @@ export async function createUserAction(
     return { error: "Invalid status selected." };
   }
 
-  const existingUser = await prisma.user.findUnique({ where: { email } });
+  try {
+    const existingUser = await withDbRetry(() =>
+      prisma.user.findUnique({ where: { email } }),
+    );
 
-  if (existingUser) {
-    return { error: "A user with this email already exists." };
+    if (existingUser) {
+      return { error: "A user with this email already exists." };
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    await withDbRetry(() =>
+      prisma.user.create({
+        data: {
+          name,
+          email,
+          passwordHash,
+          role: role as UserRole,
+          status: status as UserStatus,
+        },
+      }),
+    );
+
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (error) {
+    return { error: getDbErrorMessage(error) };
   }
-
-  const passwordHash = await bcrypt.hash(password, 12);
-
-  await prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash,
-      role: role as UserRole,
-      status: status as UserStatus,
-    },
-  });
-
-  revalidatePath("/admin/users");
-  return { success: true };
 }
 
 export async function updateUserAction(
@@ -109,65 +118,77 @@ export async function updateUserAction(
     return { error: "Invalid status selected." };
   }
 
-  const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+  try {
+    const existingUser = await withDbRetry(() =>
+      prisma.user.findUnique({ where: { id: userId } }),
+    );
 
-  if (!existingUser) {
-    return { error: "User not found." };
-  }
-
-  const emailTaken = await prisma.user.findFirst({
-    where: {
-      email,
-      id: { not: userId },
-    },
-  });
-
-  if (emailTaken) {
-    return { error: "A user with this email already exists." };
-  }
-
-  if (existingUser.role === UserRole.SUPER_ADMIN && role !== UserRole.SUPER_ADMIN) {
-    const superAdminCount = await prisma.user.count({
-      where: { role: UserRole.SUPER_ADMIN },
-    });
-
-    if (superAdminCount <= 1) {
-      return { error: "Cannot change the role of the last super admin." };
+    if (!existingUser) {
+      return { error: "User not found." };
     }
+
+    const emailTaken = await withDbRetry(() =>
+      prisma.user.findFirst({
+        where: {
+          email,
+          id: { not: userId },
+        },
+      }),
+    );
+
+    if (emailTaken) {
+      return { error: "A user with this email already exists." };
+    }
+
+    if (existingUser.role === UserRole.SUPER_ADMIN && role !== UserRole.SUPER_ADMIN) {
+      const superAdminCount = await withDbRetry(() =>
+        prisma.user.count({
+          where: { role: UserRole.SUPER_ADMIN },
+        }),
+      );
+
+      if (superAdminCount <= 1) {
+        return { error: "Cannot change the role of the last super admin." };
+      }
+    }
+
+    if (
+      session.userId === userId &&
+      status !== UserStatus.ACTIVE &&
+      existingUser.status === UserStatus.ACTIVE
+    ) {
+      return { error: "You cannot deactivate your own account." };
+    }
+
+    const data: {
+      name: string;
+      email: string;
+      role: UserRole;
+      status: UserStatus;
+      passwordHash?: string;
+    } = {
+      name,
+      email,
+      role: role as UserRole,
+      status: status as UserStatus,
+    };
+
+    if (password) {
+      data.passwordHash = await bcrypt.hash(password, 12);
+    }
+
+    await withDbRetry(() =>
+      prisma.user.update({
+        where: { id: userId },
+        data,
+      }),
+    );
+
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (error) {
+    return { error: getDbErrorMessage(error) };
   }
-
-  if (
-    session.userId === userId &&
-    status !== UserStatus.ACTIVE &&
-    existingUser.status === UserStatus.ACTIVE
-  ) {
-    return { error: "You cannot deactivate your own account." };
-  }
-
-  const data: {
-    name: string;
-    email: string;
-    role: UserRole;
-    status: UserStatus;
-    passwordHash?: string;
-  } = {
-    name,
-    email,
-    role: role as UserRole,
-    status: status as UserStatus,
-  };
-
-  if (password) {
-    data.passwordHash = await bcrypt.hash(password, 12);
-  }
-
-  await prisma.user.update({
-    where: { id: userId },
-    data,
-  });
-
-  revalidatePath("/admin/users");
-  return { success: true };
 }
 
 export async function deleteUserAction(userId: string): Promise<DeleteUserResult> {
@@ -185,24 +206,32 @@ export async function deleteUserAction(userId: string): Promise<DeleteUserResult
     return { error: "You cannot delete your own account." };
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  try {
+    const user = await withDbRetry(() =>
+      prisma.user.findUnique({ where: { id: userId } }),
+    );
 
-  if (!user) {
-    return { error: "User not found." };
-  }
-
-  if (user.role === UserRole.SUPER_ADMIN) {
-    const superAdminCount = await prisma.user.count({
-      where: { role: UserRole.SUPER_ADMIN },
-    });
-
-    if (superAdminCount <= 1) {
-      return { error: "Cannot delete the last super admin account." };
+    if (!user) {
+      return { error: "User not found." };
     }
+
+    if (user.role === UserRole.SUPER_ADMIN) {
+      const superAdminCount = await withDbRetry(() =>
+        prisma.user.count({
+          where: { role: UserRole.SUPER_ADMIN },
+        }),
+      );
+
+      if (superAdminCount <= 1) {
+        return { error: "Cannot delete the last super admin account." };
+      }
+    }
+
+    await withDbRetry(() => prisma.user.delete({ where: { id: userId } }));
+
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (error) {
+    return { error: getDbErrorMessage(error) };
   }
-
-  await prisma.user.delete({ where: { id: userId } });
-
-  revalidatePath("/admin/users");
-  return { success: true };
 }

@@ -8,12 +8,13 @@ import {
   about,
   approach,
   commitment,
-  services,
   site,
   story,
 } from "./lib/content";
+import { getAllPublicServices } from "./lib/service-data";
 
-export default function Home() {
+export default async function Home() {
+  const services = await getAllPublicServices();
   return (
     <>
       <Header />

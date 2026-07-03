@@ -57,6 +57,43 @@ export async function getPublicServiceById(id: string): Promise<PublicService | 
   };
 }
 
+export async function getAllPublicServices(): Promise<PublicService[]> {
+  try {
+    const dbServices = await withDbRetry(() =>
+      prisma.service.findMany({
+        where: { status: ServiceStatus.PUBLISHED },
+        orderBy: { sortOrder: "asc" },
+      }),
+    );
+
+    if (dbServices.length > 0) {
+      return dbServices.map((service) => ({
+        id: service.id,
+        title: service.title,
+        description: service.description,
+        note: service.note,
+        items: service.items,
+        amount:
+          service.amountNgn != null ? formatNairaAmount(service.amountNgn) : undefined,
+        duration: service.duration ?? undefined,
+        imageUrl: service.imageUrl,
+      }));
+    }
+  } catch {
+    // Fall back to static content when the database is unavailable.
+  }
+
+  return contentServices.map((service) => ({
+    id: service.id,
+    title: service.title,
+    description: service.description,
+    note: service.note,
+    items: [...service.items],
+    amount: service.amount,
+    duration: service.duration,
+  }));
+}
+
 export async function getAllPublicServiceIds(): Promise<string[]> {
   const ids = new Set(contentServices.map((service) => service.id));
 

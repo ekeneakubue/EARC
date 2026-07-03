@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { adminNav } from "../lib/data";
 import { NavIcon } from "./AdminUI";
+import { useBadges } from "./BadgesContext";
 
 type AdminSidebarProps = {
   open: boolean;
@@ -11,6 +12,7 @@ type AdminSidebarProps = {
 };
 
 export default function AdminSidebar({ open, onClose }: AdminSidebarProps) {
+  const badges = useBadges();
   const pathname = usePathname();
 
   return (
@@ -59,9 +61,9 @@ export default function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               >
                 <NavIcon name={item.icon} />
                 <span className="flex-1">{item.label}</span>
-                {item.badge && (
+                {item.badgeKey && badges?.[item.badgeKey] != null && badges[item.badgeKey] > 0 && (
                   <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-primary-dark">
-                    {item.badge}
+                    {badges[item.badgeKey]}
                   </span>
                 )}
               </Link>

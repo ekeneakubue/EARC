@@ -2,14 +2,19 @@ export type AdminNavItem = {
   label: string;
   href: string;
   icon: "dashboard" | "users" | "services" | "inquiries" | "content" | "training" | "partners" | "reports" | "settings";
-  badge?: number;
+  badgeKey?: "users" | "inquiries";
+};
+
+export type SidebarBadges = {
+  users: number;
+  inquiries: number;
 };
 
 export const adminNav: AdminNavItem[] = [
   { label: "Dashboard", href: "/admin", icon: "dashboard" },
-  { label: "Users", href: "/admin/users", icon: "users", badge: 3 },
+  { label: "Users", href: "/admin/users", icon: "users", badgeKey: "users" },
   { label: "Services", href: "/admin/services", icon: "services" },
-  { label: "Inquiries", href: "/admin/inquiries", icon: "inquiries", badge: 12 },
+  { label: "Inquiries", href: "/admin/inquiries", icon: "inquiries", badgeKey: "inquiries" },
   { label: "Content", href: "/admin/content", icon: "content" },
   { label: "Training", href: "/admin/training", icon: "training" },
   { label: "Partners", href: "/admin/partners", icon: "partners" },

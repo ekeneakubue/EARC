@@ -41,8 +41,27 @@ export function isTransientDbError(error: unknown): boolean {
 }
 
 export function getDbErrorMessage(error: unknown): string {
+  const code = getErrorCode(error);
+  const message = getErrorMessage(error);
+
   if (isTransientDbError(error)) {
     return "Unable to reach the database. Check your internet connection and try again.";
+  }
+
+  if (code === "P1000" || /authentication failed|password authentication failed/i.test(message)) {
+    return "Database authentication failed. Check your database credentials.";
+  }
+
+  if (
+    code === "P2021" ||
+    code === "42P01" ||
+    /does not exist|relation .* does not exist/i.test(message)
+  ) {
+    return "Database tables are missing. Run migrations against the production database.";
+  }
+
+  if (/DATABASE_URL is not set/i.test(message)) {
+    return "Database is not configured on the server.";
   }
 
   return "A database error occurred. Please try again.";

@@ -14,7 +14,7 @@ function normalizeDatabaseUrl(connectionString: string) {
     const url = new URL(connectionString);
     const sslmode = url.searchParams.get("sslmode");
 
-    if (!sslmode || LEGACY_SSL_MODES.has(sslmode)) {
+    if (sslmode && LEGACY_SSL_MODES.has(sslmode)) {
       url.searchParams.set("sslmode", "verify-full");
     }
 
@@ -37,14 +37,11 @@ function createPrismaClient() {
       connectionString: normalizeDatabaseUrl(connectionString),
       connectionTimeoutMillis: 10_000,
       idleTimeoutMillis: 30_000,
-      max: 10,
+      max: process.env.NODE_ENV === "production" ? 1 : 10,
     });
 
   const adapter = new PrismaPg(pool);
-
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.pool = pool;
-  }
+  globalForPrisma.pool = pool;
 
   return new PrismaClient({
     adapter,
@@ -54,8 +51,6 @@ function createPrismaClient() {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+globalForPrisma.prisma = prisma;
 
 export default prisma;

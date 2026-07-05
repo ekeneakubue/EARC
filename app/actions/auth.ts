@@ -25,6 +25,16 @@ export async function loginAction(
     return { error: "Please enter your email and password." };
   }
 
+  if (!process.env.DATABASE_URL) {
+    console.error("Login failed: DATABASE_URL is not set");
+    return { error: "Database is not configured on the server." };
+  }
+
+  if (process.env.NODE_ENV === "production" && !process.env.AUTH_SECRET) {
+    console.error("Login failed: AUTH_SECRET is not set");
+    return { error: "Authentication is not configured on the server." };
+  }
+
   try {
     const user = await withDbRetry(() =>
       prisma.user.findUnique({ where: { email } }),
@@ -51,15 +61,21 @@ export async function loginAction(
       }),
     );
 
-    await createSession({
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    });
+    try {
+      await createSession({
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      });
+    } catch (error) {
+      console.error("Login failed: could not create session", error);
+      return { error: "Authentication is not configured on the server." };
+    }
 
     return { success: true };
   } catch (error) {
+    console.error("Login failed: database error", error);
     return { error: getDbErrorMessage(error) };
   }
 }

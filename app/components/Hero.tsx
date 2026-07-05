@@ -1,6 +1,11 @@
-import { partners, site, stats } from "../lib/content";
+import { partners, stats } from "../lib/content";
+import type { HeroContent } from "../lib/content-sections";
 
-export default function Hero() {
+type HeroProps = {
+  content: HeroContent;
+};
+
+export default function Hero({ content }: HeroProps) {
   return (
     <section className="relative min-h-screen overflow-hidden bg-primary-dark text-white">
       <div
@@ -28,17 +33,15 @@ export default function Hero() {
           <div className="max-w-3xl">
           <p className="animate-fade-up mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm font-medium text-accent-light">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            Multidisciplinary Research & Development
+            {content.eyebrow}
           </p>
 
           <h1 className="animate-fade-up-delay-1 font-display text-4xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
-            {site.name}
+            {content.name}
           </h1>
 
           <p className="animate-fade-up-delay-2 mt-6 text-lg leading-relaxed text-white/80 md:text-xl">
-            {site.tagline} We bridge the knowledge and capacity gap in
-            underserved communities through research, training, and evidence-based
-            solutions.
+            {content.tagline} {content.intro}
           </p>
 
           <div className="animate-fade-up-delay-2 mt-10 flex flex-col gap-4 sm:flex-row">

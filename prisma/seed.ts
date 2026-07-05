@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { ServiceStatus, UserRole, UserStatus } from "../app/lib/enums";
+import { getDefaultContentSections } from "../app/lib/content-sections";
 import bcrypt from "bcryptjs";
 import { services } from "../app/lib/content";
 import { prisma } from "../app/lib/prisma";
@@ -77,6 +78,27 @@ async function main() {
         items: [...service.items],
         sortOrder: index,
         status: ServiceStatus.PUBLISHED,
+      },
+    });
+  }
+
+  for (const section of getDefaultContentSections()) {
+    await prisma.contentSection.upsert({
+      where: { id: section.id },
+      update: {
+        title: section.title,
+        section: section.section,
+        status: section.status,
+        data: section.data,
+        sortOrder: section.sortOrder,
+      },
+      create: {
+        id: section.id,
+        title: section.title,
+        section: section.section,
+        status: section.status,
+        data: section.data,
+        sortOrder: section.sortOrder,
       },
     });
   }

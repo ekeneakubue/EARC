@@ -1,7 +1,11 @@
 import Image from "next/image";
-import { story } from "../lib/content";
+import type { StoryChapterContent } from "../lib/content-sections";
 
-export default function StoryTimeline() {
+type StoryTimelineProps = {
+  chapters: StoryChapterContent[];
+};
+
+export default function StoryTimeline({ chapters }: StoryTimelineProps) {
   return (
     <div className="relative">
       <div
@@ -10,7 +14,7 @@ export default function StoryTimeline() {
       />
 
       <div className="space-y-16 md:space-y-24">
-        {story.chapters.map((chapter, index) => {
+        {chapters.map((chapter, index) => {
           const imageFirst = index % 2 === 1;
 
           return (

@@ -26,6 +26,11 @@ enum ServiceStatus {
   ARCHIVED
 }
 
+enum ContentStatus {
+  PUBLISHED
+  DRAFT
+}
+
 model User {
   id           String     @id @default(cuid())
   email        String     @unique
@@ -59,4 +64,19 @@ model Service {
   @@index([status])
   @@index([sortOrder])
   @@map("services")
+}
+
+model ContentSection {
+  id        String        @id
+  title     String
+  section   String
+  status    ContentStatus @default(PUBLISHED)
+  data      Json
+  sortOrder Int           @default(0) @map("sort_order")
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([sortOrder])
+  @@map("content_sections")
 }

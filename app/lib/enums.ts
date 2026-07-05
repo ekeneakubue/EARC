@@ -24,6 +24,13 @@ export const ServiceStatus = {
 
 export type ServiceStatus = (typeof ServiceStatus)[keyof typeof ServiceStatus];
 
+export const ContentStatus = {
+  PUBLISHED: "PUBLISHED",
+  DRAFT: "DRAFT",
+} as const;
+
+export type ContentStatus = (typeof ContentStatus)[keyof typeof ContentStatus];
+
 export const userRoleLabels: Record<UserRole, string> = {
   SUPER_ADMIN: "Super Admin",
   ADMIN: "Admin",
@@ -44,6 +51,12 @@ export const serviceStatusLabels: Record<ServiceStatus, string> = {
   ARCHIVED: "Archived",
 };
 
+export const contentStatusLabels: Record<ContentStatus, string> = {
+  PUBLISHED: "Published",
+  DRAFT: "Draft",
+};
+
 export const USER_ROLES = Object.values(UserRole);
 export const USER_STATUSES = Object.values(UserStatus);
 export const SERVICE_STATUSES = Object.values(ServiceStatus);
+export const CONTENT_STATUSES = Object.values(ContentStatus);

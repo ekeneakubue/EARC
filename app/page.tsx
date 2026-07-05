@@ -4,28 +4,27 @@ import Hero from "./components/Hero";
 import Section, { Prose, ProseParagraph } from "./components/Section";
 import ServiceCard from "./components/ServiceCard";
 import StoryTimeline from "./components/StoryTimeline";
-import {
-  about,
-  approach,
-  commitment,
-  site,
-  story,
-} from "./lib/content";
+import { approach, commitment, site } from "./lib/content";
+import { getPublicHomeContent } from "./lib/content-data";
 import { getAllPublicServices } from "./lib/service-data";
 
 export default async function Home() {
-  const services = await getAllPublicServices();
+  const [services, homeContent] = await Promise.all([
+    getAllPublicServices(),
+    getPublicHomeContent(),
+  ]);
+
   return (
     <>
       <Header />
       <main>
-        <Hero />
+        <Hero content={homeContent.hero} />
 
-        <Section id="about" eyebrow="About EARC" title={about.title}>
+        <Section id="about" eyebrow="About EARC" title={homeContent.about.title}>
           <div className="grid gap-12 lg:grid-cols-5">
             <div className="lg:col-span-3">
               <Prose>
-                {about.paragraphs.map((paragraph) => (
+                {homeContent.about.paragraphs.map((paragraph) => (
                   <ProseParagraph key={paragraph.slice(0, 40)}>
                     {paragraph}
                   </ProseParagraph>
@@ -84,10 +83,10 @@ export default async function Home() {
         <Section
           id="story"
           eyebrow="Our Journey"
-          title={story.title}
+          title={homeContent.story.title}
           variant="muted"
         >
-          <StoryTimeline />
+          <StoryTimeline chapters={homeContent.story.chapters} />
         </Section>
 
         <Section id="services" eyebrow="What We Do" title="Our Services">
@@ -168,15 +167,13 @@ export default async function Home() {
               <div className="grid lg:grid-cols-2">
                 <div className="p-8 md:p-12 lg:p-16">
                   <p className="text-sm font-semibold uppercase tracking-widest text-accent-light">
-                    Get in Touch
+                    {homeContent.contact.eyebrow}
                   </p>
                   <h2 className="mt-3 font-display text-3xl font-bold text-white md:text-4xl">
-                    Partner With EARC
+                    {homeContent.contact.title}
                   </h2>
                   <p className="mt-4 max-w-md text-white/75">
-                    Ready to strengthen your research capacity, improve your MEL
-                    systems, or advance evidence-based decision-making? We would
-                    love to hear from you.
+                    {homeContent.contact.description}
                   </p>
                   <div className="mt-8 space-y-4">
                     <a
@@ -203,17 +200,10 @@ export default async function Home() {
                 </div>
                 <div className="flex flex-col justify-center border-t border-white/10 bg-primary/50 p-8 md:p-12 lg:border-l lg:border-t-0">
                   <h3 className="font-display text-xl font-semibold text-white">
-                    Areas of Collaboration
+                    {homeContent.contact.collaborationTitle}
                   </h3>
                   <ul className="mt-6 space-y-3">
-                    {[
-                      "Educational research & institutional reviews",
-                      "MEL framework design & evaluations",
-                      "Data analytics & research support",
-                      "Professional training & capacity building",
-                      "Environmental & geospatial analytics",
-                      "Policy advisory & strategic planning",
-                    ].map((item) => (
+                    {homeContent.contact.collaborationItems.map((item) => (
                       <li
                         key={item}
                         className="flex items-center gap-3 text-sm text-white/80"

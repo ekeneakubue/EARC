@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { Prisma } from "@prisma/client";
 import { ServiceStatus, UserRole, UserStatus } from "../app/lib/enums";
 import { getDefaultContentSections } from "../app/lib/content-sections";
 import bcrypt from "bcryptjs";
@@ -89,7 +90,7 @@ async function main() {
         title: section.title,
         section: section.section,
         status: section.status,
-        data: section.data,
+        data: section.data as Prisma.InputJsonValue,
         sortOrder: section.sortOrder,
       },
       create: {
@@ -97,7 +98,7 @@ async function main() {
         title: section.title,
         section: section.section,
         status: section.status,
-        data: section.data,
+        data: section.data as Prisma.InputJsonValue,
         sortOrder: section.sortOrder,
       },
     });

@@ -96,7 +96,7 @@ export const CONTENT_SECTIONS: Record<ContentSectionId, ContentSectionConfig> = 
     section: "Contact",
     previewPath: "/#contact",
     sortOrder: 4,
-    defaultStatus: "DRAFT",
+    defaultStatus: "PUBLISHED",
     defaultData: {
       eyebrow: "Get in Touch",
       title: "Partner With EARC",

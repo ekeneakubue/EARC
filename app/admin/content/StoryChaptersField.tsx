@@ -29,7 +29,7 @@ export default function StoryChaptersField({
           }))
         : [{ chapter: 1, title: "", paragraph: "", image: "", alt: "" }],
     );
-  }, [resetKey, initialChapters]);
+  }, [resetKey]);
 
   function addChapter() {
     setChapters((current) => [

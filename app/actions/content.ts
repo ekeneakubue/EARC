@@ -1,5 +1,6 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { CONTENT_SECTIONS, type ContentSectionId } from "../lib/content-sections";
 import { ContentStatus } from "../lib/enums";
@@ -155,14 +156,14 @@ export async function updateContentSectionAction(
           title,
           section,
           status: status as ContentStatus,
-          data,
+          data: data as Prisma.InputJsonValue,
         },
         create: {
           id,
           title,
           section,
           status: status as ContentStatus,
-          data,
+          data: data as Prisma.InputJsonValue,
           sortOrder: config.sortOrder,
         },
       }),

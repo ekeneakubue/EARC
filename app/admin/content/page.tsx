@@ -3,6 +3,8 @@ import { getDbErrorMessage } from "../../lib/db";
 import { getAdminContentSections } from "../../lib/content-data";
 import ContentManager from "./ContentManager";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminContentPage() {
   try {
     const sections = await getAdminContentSections();

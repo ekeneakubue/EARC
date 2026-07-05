@@ -1,6 +1,7 @@
 import type { ContentStatus } from "./enums";
 import {
   CONTENT_SECTIONS,
+  getDefaultContentSections,
   type AboutContent,
   type ContactContent,
   type ContentSectionId,
@@ -9,6 +10,7 @@ import {
 } from "./content-sections";
 import { withDbRetry } from "./db";
 import { prisma } from "./prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 export type ContentSectionRow = {
   id: string;
@@ -21,6 +23,16 @@ export type ContentSectionRow = {
   previewPath: string;
   editHref?: string;
 };
+
+function mergeSectionData(id: string, data: unknown): Record<string, unknown> {
+  const defaults = CONTENT_SECTIONS[id as ContentSectionId]?.defaultData ?? {};
+
+  if (data && typeof data === "object" && !Array.isArray(data)) {
+    return { ...defaults, ...(data as Record<string, unknown>) };
+  }
+
+  return defaults;
+}
 
 function enrichSection(section: {
   id: string;
@@ -38,10 +50,7 @@ function enrichSection(section: {
     title: section.title,
     section: section.section,
     status: section.status,
-    data:
-      section.data && typeof section.data === "object" && !Array.isArray(section.data)
-        ? (section.data as Record<string, unknown>)
-        : {},
+    data: mergeSectionData(section.id, section.data),
     sortOrder: section.sortOrder,
     updatedAt: section.updatedAt,
     previewPath: config?.previewPath ?? "/",
@@ -67,6 +76,8 @@ function getFallbackSection(id: ContentSectionId): ContentSectionRow {
 }
 
 export async function getAdminContentSections(): Promise<ContentSectionRow[]> {
+  noStore();
+
   try {
     const sections = await withDbRetry(() =>
       prisma.contentSection.findMany({
@@ -98,6 +109,8 @@ export type PublicHomeContent = {
 };
 
 export async function getPublicHomeContent(): Promise<PublicHomeContent> {
+  noStore();
+
   const fallback = {
     hero: CONTENT_SECTIONS.hero.defaultData as HeroContent,
     about: CONTENT_SECTIONS.about.defaultData as AboutContent,

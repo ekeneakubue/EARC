@@ -22,8 +22,8 @@ export default function ListItemsField({
   const [items, setItems] = useState<string[]>([""]);
 
   useEffect(() => {
-    setItems(initialItems?.length ? initialItems : [""]);
-  }, [resetKey, initialItems]);
+    setItems(initialItems?.length ? [...initialItems] : [""]);
+  }, [resetKey]);
 
   function addItem() {
     setItems((current) => [...current, ""]);
@@ -60,7 +60,7 @@ export default function ListItemsField({
 
       <ul className="space-y-2">
         {items.map((item, index) => (
-          <li key={index} className="flex items-center gap-2">
+          <li key={`${String(resetKey)}-${index}`} className="flex items-center gap-2">
             <input
               name={name}
               type="text"

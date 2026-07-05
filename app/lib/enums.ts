@@ -31,6 +31,14 @@ export const ContentStatus = {
 
 export type ContentStatus = (typeof ContentStatus)[keyof typeof ContentStatus];
 
+export const TrainingStatus = {
+  OPEN: "OPEN",
+  FULL: "FULL",
+  DRAFT: "DRAFT",
+} as const;
+
+export type TrainingStatus = (typeof TrainingStatus)[keyof typeof TrainingStatus];
+
 export const userRoleLabels: Record<UserRole, string> = {
   SUPER_ADMIN: "Super Admin",
   ADMIN: "Admin",
@@ -56,7 +64,14 @@ export const contentStatusLabels: Record<ContentStatus, string> = {
   DRAFT: "Draft",
 };
 
+export const trainingStatusLabels: Record<TrainingStatus, string> = {
+  OPEN: "Open",
+  FULL: "Full",
+  DRAFT: "Draft",
+};
+
 export const USER_ROLES = Object.values(UserRole);
 export const USER_STATUSES = Object.values(UserStatus);
 export const SERVICE_STATUSES = Object.values(ServiceStatus);
 export const CONTENT_STATUSES = Object.values(ContentStatus);
+export const TRAINING_STATUSES = Object.values(TrainingStatus);

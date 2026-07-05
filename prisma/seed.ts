@@ -2,6 +2,7 @@ import "dotenv/config";
 import { Prisma } from "@prisma/client";
 import { ServiceStatus, UserRole, UserStatus } from "../app/lib/enums";
 import { getDefaultContentSections } from "../app/lib/content-sections";
+import { defaultTrainingPrograms } from "../app/lib/training-programs";
 import bcrypt from "bcryptjs";
 import { services } from "../app/lib/content";
 import { prisma } from "../app/lib/prisma";
@@ -100,6 +101,31 @@ async function main() {
         status: section.status,
         data: section.data as Prisma.InputJsonValue,
         sortOrder: section.sortOrder,
+      },
+    });
+  }
+
+  for (const [index, program] of defaultTrainingPrograms.entries()) {
+    await prisma.trainingProgram.upsert({
+      where: { id: program.id },
+      update: {
+        title: program.title,
+        cohort: program.cohort,
+        enrolled: program.enrolled,
+        capacity: program.capacity,
+        startDate: new Date(program.startDate),
+        status: program.status,
+        sortOrder: index,
+      },
+      create: {
+        id: program.id,
+        title: program.title,
+        cohort: program.cohort,
+        enrolled: program.enrolled,
+        capacity: program.capacity,
+        startDate: new Date(program.startDate),
+        status: program.status,
+        sortOrder: index,
       },
     });
   }

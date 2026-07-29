@@ -251,7 +251,7 @@ export default function EditNewsModal({ item, onClose }: EditNewsModalProps) {
               name="fullDescription"
               required
               rows={6}
-              defaultValue={item.fullDescription}
+              defaultValue={item.fullDescription ?? ""}
               className={inputClassName}
             />
           </div>

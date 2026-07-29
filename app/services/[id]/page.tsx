@@ -10,6 +10,7 @@ import {
   getPublicServiceById,
   getRelatedPublicServices,
 } from "../../lib/service-data";
+import OrderServiceCTA from "./OrderServiceCTA";
 
 type ServicePageProps = {
   params: Promise<{ id: string }>;
@@ -131,6 +132,28 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
                 ))}
               </ul>
 
+              <div className="mt-8 rounded-2xl bg-primary p-6 text-white md:p-8">
+                <h3 className="font-display text-lg font-semibold">Request This Service</h3>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/80">
+                  Partner with {site.shortName} to access expert support for your project or
+                  institution.
+                </p>
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                  <OrderServiceCTA
+                    serviceId={service.id}
+                    serviceTitle={service.title}
+                    amountNgn={service.amountNgn}
+                    contactEmail={site.email}
+                  />
+                  <Link
+                    href="/#contact"
+                    className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                  >
+                    Get in Touch
+                  </Link>
+                </div>
+              </div>
+
               <div className="mt-10 rounded-2xl border border-border bg-background p-6 md:p-8">
                 <h3 className="font-display text-xl font-semibold text-foreground">
                   Our Approach
@@ -152,20 +175,6 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
                   />
                 </div>
               )}
-
-              <div className="rounded-2xl bg-primary p-6 text-white">
-                <h3 className="font-display text-lg font-semibold">Request This Service</h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/80">
-                  Partner with {site.shortName} to access expert support for your project or
-                  institution.
-                </p>
-                <Link
-                  href="/#contact"
-                  className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-primary-dark transition-colors hover:bg-accent-light"
-                >
-                  Get in Touch
-                </Link>
-              </div>
 
               <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
                 <h3 className="font-semibold text-foreground">Related Services</h3>

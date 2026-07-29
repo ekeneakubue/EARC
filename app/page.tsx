@@ -6,19 +6,21 @@ import ServiceCard from "./components/ServiceCard";
 import StoryTimeline from "./components/StoryTimeline";
 import { approach, commitment, site } from "./lib/content";
 import { getPublicHomeContent } from "./lib/content-data";
+import { getPublicNewsItems } from "./lib/news-data";
 import { getAllPublicServices } from "./lib/service-data";
 
 export default async function Home() {
-  const [services, homeContent] = await Promise.all([
+  const [services, homeContent, newsItems] = await Promise.all([
     getAllPublicServices(),
     getPublicHomeContent(),
+    getPublicNewsItems(),
   ]);
 
   return (
     <>
       <Header />
       <main>
-        <Hero content={homeContent.hero} />
+        <Hero content={homeContent.hero} newsItems={newsItems} />
 
         <Section id="about" eyebrow="About EARC" title={homeContent.about.title}>
           <div className="grid gap-12 lg:grid-cols-5">
@@ -175,13 +177,13 @@ export default async function Home() {
                   <p className="mt-4 max-w-md text-white/75">
                     {homeContent.contact.description}
                   </p>
-                  <div className="mt-8 space-y-4">
+                  <div className="mt-8">
                     <a
                       href={`mailto:${site.email}`}
-                      className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-3.5 text-sm font-semibold text-primary-dark transition-colors hover:bg-accent-light"
+                      className="inline-flex items-center gap-2 text-base text-accent-light underline-offset-4 transition-colors hover:text-accent hover:underline"
                     >
                       <svg
-                        className="h-5 w-5"
+                        className="h-5 w-5 shrink-0"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"

@@ -2,7 +2,7 @@ export const site = {
   name: "Education And Research Consortium",
   shortName: "EARC",
   tagline: "Transforming data into knowledge, knowledge into action.",
-  email: "info@earc.org",
+  email: "felix.dike@unn.edu.ng",
   location: "Africa & Beyond",
 } as const;
 

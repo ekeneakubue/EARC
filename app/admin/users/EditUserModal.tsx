@@ -10,11 +10,12 @@ import type { UserRow } from "./UsersManager";
 type EditUserModalProps = {
   user: UserRow | null;
   onClose: () => void;
+  assignableRoles: UserRole[];
 };
 
 const initialState: UpdateUserState = {};
 
-export default function EditUserModal({ user, onClose }: EditUserModalProps) {
+export default function EditUserModal({ user, onClose, assignableRoles }: EditUserModalProps) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(updateUserAction, initialState);
 
@@ -151,7 +152,7 @@ export default function EditUserModal({ user, onClose }: EditUserModalProps) {
                 defaultValue={user.role}
                 className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               >
-                {Object.values(UserRole).map((role) => (
+                {assignableRoles.map((role) => (
                   <option key={role} value={role}>
                     {userRoleLabels[role]}
                   </option>

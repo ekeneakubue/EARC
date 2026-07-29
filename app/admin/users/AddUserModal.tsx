@@ -9,11 +9,12 @@ import { UserRole, UserStatus, userRoleLabels, userStatusLabels } from "../../li
 type AddUserModalProps = {
   open: boolean;
   onClose: () => void;
+  assignableRoles: UserRole[];
 };
 
 const initialState: CreateUserState = {};
 
-export default function AddUserModal({ open, onClose }: AddUserModalProps) {
+export default function AddUserModal({ open, onClose, assignableRoles }: AddUserModalProps) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(createUserAction, initialState);
 
@@ -147,7 +148,7 @@ export default function AddUserModal({ open, onClose }: AddUserModalProps) {
                 defaultValue={UserRole.EDITOR}
                 className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               >
-                {Object.values(UserRole).map((role) => (
+                {assignableRoles.map((role) => (
                   <option key={role} value={role}>
                     {userRoleLabels[role]}
                   </option>

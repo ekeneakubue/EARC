@@ -1,6 +1,9 @@
 "use client";
 
 import { logoutAction } from "../../actions/auth";
+import { userRoleLabels } from "../../lib/enums";
+import { getUserInitials } from "../../lib/user-utils";
+import { useSession } from "./SessionContext";
 
 type AdminHeaderProps = {
   title: string;
@@ -9,6 +12,11 @@ type AdminHeaderProps = {
 };
 
 export default function AdminHeader({ title, subtitle, onMenuClick }: AdminHeaderProps) {
+  const session = useSession();
+  const displayName = session?.name ?? "Admin";
+  const displayEmail = session?.email ?? "admin@earc.org";
+  const roleLabel = session ? userRoleLabels[session.role] : "Admin";
+  const initials = getUserInitials(displayName) || "AD";
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-surface/95 px-4 backdrop-blur-sm sm:px-6">
       <div className="flex items-center gap-4">
@@ -53,11 +61,13 @@ export default function AdminHeader({ title, subtitle, onMenuClick }: AdminHeade
 
         <div className="flex items-center gap-3 border-l border-border pl-3">
           <div className="hidden text-right sm:block">
-            <p className="text-sm font-medium text-foreground">Super Admin</p>
-            <p className="text-xs text-muted">admin@earc.org</p>
+            <p className="text-sm font-medium text-foreground">{displayName}</p>
+            <p className="text-xs text-muted">
+              {roleLabel} · {displayEmail}
+            </p>
           </div>
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
-            SA
+            {initials}
           </div>
           <form action={logoutAction}>
             <button

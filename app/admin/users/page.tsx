@@ -1,7 +1,10 @@
 import AdminShell from "../components/AdminShell";
+import { getSession } from "../../lib/auth";
 import type { UserRole, UserStatus } from "../../lib/enums";
+import { UserRole as UserRoleEnum } from "../../lib/enums";
 import { getDbErrorMessage, withDbRetry } from "../../lib/db";
 import { prisma } from "../../lib/prisma";
+import { getAssignableRoles, getVisibleUsersWhere } from "../../lib/user-permissions";
 import UsersManager from "./UsersManager";
 
 type UserListRecord = {
@@ -25,11 +28,13 @@ function formatLastActive(date: Date | null) {
 }
 
 export default async function AdminUsersPage() {
+  const session = await getSession();
   let users: UserListRecord[];
 
   try {
     users = await withDbRetry(() =>
       prisma.user.findMany({
+        where: session ? getVisibleUsersWhere(session.role) : undefined,
         orderBy: { createdAt: "desc" },
         select: {
           id: true,
@@ -65,7 +70,10 @@ export default async function AdminUsersPage() {
 
   return (
     <AdminShell title="Users" subtitle="Manage admin accounts and roles">
-      <UsersManager users={rows} />
+      <UsersManager
+        users={rows}
+        assignableRoles={getAssignableRoles(session?.role ?? UserRoleEnum.EDITOR)}
+      />
     </AdminShell>
   );
 }

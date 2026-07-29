@@ -18,9 +18,10 @@ export type UserRow = {
 
 type UsersManagerProps = {
   users: UserRow[];
+  assignableRoles: UserRole[];
 };
 
-export default function UsersManager({ users }: UsersManagerProps) {
+export default function UsersManager({ users, assignableRoles }: UsersManagerProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<UserRow | null>(null);
   const [userToDelete, setUserToDelete] = useState<UserRow | null>(null);
@@ -111,8 +112,16 @@ export default function UsersManager({ users }: UsersManagerProps) {
         </table>
       </div>
 
-      <AddUserModal open={modalOpen} onClose={() => setModalOpen(false)} />
-      <EditUserModal user={userToEdit} onClose={() => setUserToEdit(null)} />
+      <AddUserModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        assignableRoles={assignableRoles}
+      />
+      <EditUserModal
+        user={userToEdit}
+        onClose={() => setUserToEdit(null)}
+        assignableRoles={assignableRoles}
+      />
       <DeleteUserModal user={userToDelete} onClose={() => setUserToDelete(null)} />
     </>
   );

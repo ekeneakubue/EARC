@@ -16,9 +16,9 @@ export default function AdminShell({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="h-screen overflow-hidden bg-background">
       <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex h-screen min-w-0 flex-col overflow-y-auto lg:ml-64">
         <AdminHeader
           title={title}
           subtitle={subtitle}

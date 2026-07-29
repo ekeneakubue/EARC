@@ -1,7 +1,9 @@
 import "dotenv/config";
 import { Prisma } from "@prisma/client";
-import { ServiceStatus, UserRole, UserStatus } from "../app/lib/enums";
+import { ContentStatus, ServiceStatus, UserRole, UserStatus } from "../app/lib/enums";
 import { getDefaultContentSections } from "../app/lib/content-sections";
+import { defaultNewsItems } from "../app/lib/news-data";
+import { defaultSiteSettings, SITE_SETTINGS_ID } from "../app/lib/site-settings";
 import { defaultTrainingPrograms } from "../app/lib/training-programs";
 import bcrypt from "bcryptjs";
 import { services } from "../app/lib/content";
@@ -129,6 +131,42 @@ async function main() {
       },
     });
   }
+
+  for (const [index, item] of defaultNewsItems.entries()) {
+    await prisma.newsItem.upsert({
+      where: { id: item.id },
+      update: {
+        category: item.category,
+        title: item.title,
+        description: item.description,
+        fullDescription: item.fullDescription,
+        imageUrl: item.imageUrl,
+        status: ContentStatus.PUBLISHED,
+        sortOrder: index,
+      },
+      create: {
+        id: item.id,
+        category: item.category,
+        title: item.title,
+        description: item.description,
+        fullDescription: item.fullDescription,
+        imageUrl: item.imageUrl,
+        status: ContentStatus.PUBLISHED,
+        sortOrder: index,
+      },
+    });
+  }
+
+  await prisma.siteSettings.upsert({
+    where: { id: SITE_SETTINGS_ID },
+    update: {
+      data: defaultSiteSettings as Prisma.InputJsonValue,
+    },
+    create: {
+      id: SITE_SETTINGS_ID,
+      data: defaultSiteSettings as Prisma.InputJsonValue,
+    },
+  });
 }
 
 main()

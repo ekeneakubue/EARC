@@ -6,6 +6,7 @@ import { UserRole, UserStatus } from "../lib/enums";
 import { getSession } from "../lib/auth";
 import { getDbErrorMessage, withDbRetry } from "../lib/db";
 import { prisma } from "../lib/prisma";
+import { canAssignRole, canManageUser } from "../lib/user-permissions";
 
 export type CreateUserState = {
   error?: string;
@@ -29,6 +30,12 @@ export async function createUserAction(
   _prevState: CreateUserState,
   formData: FormData,
 ): Promise<CreateUserState> {
+  const session = await getSession();
+
+  if (!session) {
+    return { error: "You must be signed in to create users." };
+  }
+
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "")
     .trim()
@@ -47,6 +54,10 @@ export async function createUserAction(
 
   if (!validRoles.includes(role as UserRole)) {
     return { error: "Invalid role selected." };
+  }
+
+  if (!canAssignRole(session.role, role as UserRole)) {
+    return { error: "You do not have permission to assign this role." };
   }
 
   if (!validStatuses.includes(status as UserStatus)) {
@@ -114,6 +125,10 @@ export async function updateUserAction(
     return { error: "Invalid role selected." };
   }
 
+  if (!canAssignRole(session.role, role as UserRole)) {
+    return { error: "You do not have permission to assign this role." };
+  }
+
   if (!validStatuses.includes(status as UserStatus)) {
     return { error: "Invalid status selected." };
   }
@@ -125,6 +140,10 @@ export async function updateUserAction(
 
     if (!existingUser) {
       return { error: "User not found." };
+    }
+
+    if (!canManageUser(session, existingUser.role)) {
+      return { error: "You do not have permission to update this user." };
     }
 
     const emailTaken = await withDbRetry(() =>
@@ -213,6 +232,10 @@ export async function deleteUserAction(userId: string): Promise<DeleteUserResult
 
     if (!user) {
       return { error: "User not found." };
+    }
+
+    if (!canManageUser(session, user.role)) {
+      return { error: "You do not have permission to delete this user." };
     }
 
     if (user.role === UserRole.SUPER_ADMIN) {

@@ -11,6 +11,7 @@ export type PublicService = {
   note: string;
   items: string[];
   amount?: string;
+  amountNgn?: number | null;
   duration?: string;
   imageUrl?: string | null;
 };
@@ -32,6 +33,7 @@ export async function getPublicServiceById(id: string): Promise<PublicService | 
         items: dbService.items,
         amount:
           dbService.amountNgn != null ? formatNairaAmount(dbService.amountNgn) : undefined,
+        amountNgn: dbService.amountNgn,
         duration: dbService.duration ?? undefined,
         imageUrl: dbService.imageUrl,
       };
@@ -53,6 +55,7 @@ export async function getPublicServiceById(id: string): Promise<PublicService | 
     note: contentService.note,
     items: [...contentService.items],
     amount: contentService.amount,
+    amountNgn: null,
     duration: contentService.duration,
   };
 }
@@ -75,6 +78,7 @@ export async function getAllPublicServices(): Promise<PublicService[]> {
         items: service.items,
         amount:
           service.amountNgn != null ? formatNairaAmount(service.amountNgn) : undefined,
+        amountNgn: service.amountNgn,
         duration: service.duration ?? undefined,
         imageUrl: service.imageUrl,
       }));
@@ -90,6 +94,7 @@ export async function getAllPublicServices(): Promise<PublicService[]> {
     note: service.note,
     items: [...service.items],
     amount: service.amount,
+    amountNgn: null,
     duration: service.duration,
   }));
 }
@@ -140,6 +145,7 @@ export async function getRelatedPublicServices(
         items: service.items,
         amount:
           service.amountNgn != null ? formatNairaAmount(service.amountNgn) : undefined,
+        amountNgn: service.amountNgn,
         duration: service.duration ?? undefined,
         imageUrl: service.imageUrl,
       }));
@@ -158,6 +164,7 @@ export async function getRelatedPublicServices(
       note: service.note,
       items: [...service.items],
       amount: service.amount,
+      amountNgn: null,
       duration: service.duration,
     }));
 }

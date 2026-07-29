@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { userRoleLabels } from "../../lib/enums";
+import { isSuperAdmin } from "../../lib/user-permissions";
 import { adminNav } from "../lib/data";
 import { NavIcon } from "./AdminUI";
 import { useBadges } from "./BadgesContext";
+import { useSession } from "./SessionContext";
 
 type AdminSidebarProps = {
   open: boolean;
@@ -13,7 +16,16 @@ type AdminSidebarProps = {
 
 export default function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const badges = useBadges();
+  const session = useSession();
   const pathname = usePathname();
+  const roleLabel = session ? userRoleLabels[session.role] : "Admin";
+  const visibleNav = adminNav.filter((item) => {
+    if (!item.superAdminOnly) {
+      return true;
+    }
+
+    return Boolean(session && isSuperAdmin(session.role));
+  });
 
   return (
     <>
@@ -27,7 +39,7 @@ export default function AdminSidebar({ open, onClose }: AdminSidebarProps) {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-primary-dark text-white transition-transform duration-200 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-64 flex-col bg-primary-dark text-white transition-transform duration-200 lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -37,12 +49,12 @@ export default function AdminSidebar({ open, onClose }: AdminSidebarProps) {
           </div>
           <div>
             <p className="text-sm font-semibold">EARC Admin</p>
-            <p className="text-xs text-white/50">Super Admin</p>
+            <p className="text-xs text-white/50">{roleLabel}</p>
           </div>
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Admin navigation">
-          {adminNav.map((item) => {
+          {visibleNav.map((item) => {
             const active =
               item.href === "/admin"
                 ? pathname === "/admin"

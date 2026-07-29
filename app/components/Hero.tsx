@@ -1,11 +1,14 @@
 import { partners, stats } from "../lib/content";
 import type { HeroContent } from "../lib/content-sections";
+import type { PublicNewsItem } from "../lib/news-data";
+import NewsFeedCarousel from "./NewsFeedCarousel";
 
 type HeroProps = {
   content: HeroContent;
+  newsItems: PublicNewsItem[];
 };
 
-export default function Hero({ content }: HeroProps) {
+export default function Hero({ content, newsItems }: HeroProps) {
   return (
     <section className="relative min-h-screen overflow-hidden bg-primary-dark text-white">
       <div
@@ -28,49 +31,51 @@ export default function Hero({ content }: HeroProps) {
         }}
       />
 
-      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-16 md:py-20">
-        <div className="flex flex-1 flex-col justify-center">
+      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 pb-16 pt-8 md:pb-20 md:pt-10">
+        <div className="grid flex-1 items-center gap-12 py-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] lg:gap-14">
           <div className="max-w-3xl">
-          <p className="animate-fade-up mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm font-medium text-accent-light">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            {content.eyebrow}
-          </p>
+            <p className="animate-fade-up mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm font-medium text-accent-light">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              {content.eyebrow}
+            </p>
 
-          <h1 className="animate-fade-up-delay-1 font-display text-4xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
-            {content.name}
-          </h1>
+            <h1 className="animate-fade-up-delay-1 font-display text-4xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
+              {content.name}
+            </h1>
 
-          <p className="animate-fade-up-delay-2 mt-6 text-lg leading-relaxed text-white/80 md:text-xl">
-            {content.tagline} {content.intro}
-          </p>
+            <p className="animate-fade-up-delay-2 mt-6 text-lg leading-relaxed text-white/80 md:text-xl">
+              {content.tagline} {content.intro}
+            </p>
 
-          <div className="animate-fade-up-delay-2 mt-10 flex flex-col gap-4 sm:flex-row">
-            <a
-              href="#services"
-              className="inline-flex items-center justify-center rounded-full bg-accent px-8 py-3.5 text-sm font-semibold text-primary-dark transition-colors hover:bg-accent-light"
-            >
-              Explore Our Services
-            </a>
-            <a
-              href="#about"
-              className="inline-flex items-center justify-center rounded-full border border-white/30 px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:border-white/60 hover:bg-white/5"
-            >
-              Learn About EARC
-            </a>
+            <div className="animate-fade-up-delay-2 mt-10 flex flex-col gap-4 sm:flex-row">
+              <a
+                href="#services"
+                className="inline-flex items-center justify-center rounded-full bg-accent px-8 py-3.5 text-sm font-semibold text-primary-dark transition-colors hover:bg-accent-light"
+              >
+                Explore Our Services
+              </a>
+              <a
+                href="#about"
+                className="inline-flex items-center justify-center rounded-full border border-white/30 px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:border-white/60 hover:bg-white/5"
+              >
+                Learn About EARC
+              </a>
+            </div>
           </div>
-          </div>
+
+          <NewsFeedCarousel newsItems={newsItems} />
         </div>
 
         <div className="mt-auto space-y-12 pt-12">
           <div className="grid grid-cols-2 gap-6 border-t border-white/10 pt-12 md:grid-cols-4">
-          {stats.map((stat) => (
-            <div key={stat.label}>
-              <p className="font-display text-3xl font-bold text-accent-light md:text-4xl">
-                {stat.value}
-              </p>
-              <p className="mt-1 text-sm text-white/60">{stat.label}</p>
-            </div>
-          ))}
+            {stats.map((stat) => (
+              <div key={stat.label}>
+                <p className="font-display text-3xl font-bold text-accent-light md:text-4xl">
+                  {stat.value}
+                </p>
+                <p className="mt-1 text-sm text-white/60">{stat.label}</p>
+              </div>
+            ))}
           </div>
 
           <div>

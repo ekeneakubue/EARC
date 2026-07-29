@@ -1,5 +1,4 @@
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
@@ -25,12 +24,12 @@ export async function saveNewsImage(newsId: string, file: File): Promise<string>
     throw new Error("Image must be 5 MB or smaller.");
   }
 
-  const newsDirectory = path.join(process.cwd(), "public", "images", "news");
-  await mkdir(newsDirectory, { recursive: true });
-
   const filename = `${newsId}.${extension}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(newsDirectory, filename), buffer);
+  const blob = await put(`news/${filename}`, file, {
+    access: "public",
+    addRandomSuffix: true,
+    contentType: file.type,
+  });
 
-  return `/images/news/${filename}`;
+  return blob.url;
 }

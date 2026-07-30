@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { ServiceStatus } from "../lib/enums";
 import { getDbErrorMessage, withDbRetry } from "../lib/db";
 import { prisma } from "../lib/prisma";
+import { deletePublicObject } from "../lib/r2";
 import { saveServiceImage } from "../lib/service-image";
 import { slugify } from "../lib/slugify";
 
@@ -98,29 +99,34 @@ export async function createServiceAction(
       };
     }
 
-    const lastService = await withDbRetry(() =>
-      prisma.service.findFirst({
-        orderBy: { sortOrder: "desc" },
-        select: { sortOrder: true },
-      }),
-    );
+    try {
+      const lastService = await withDbRetry(() =>
+        prisma.service.findFirst({
+          orderBy: { sortOrder: "desc" },
+          select: { sortOrder: true },
+        }),
+      );
 
-    await withDbRetry(() =>
-      prisma.service.create({
-        data: {
-          id,
-          title,
-          description,
-          note,
-          items,
-          amountNgn,
-          duration,
-          imageUrl,
-          status: status as ServiceStatus,
-          sortOrder: (lastService?.sortOrder ?? -1) + 1,
-        },
-      }),
-    );
+      await withDbRetry(() =>
+        prisma.service.create({
+          data: {
+            id,
+            title,
+            description,
+            note,
+            items,
+            amountNgn,
+            duration,
+            imageUrl,
+            status: status as ServiceStatus,
+            sortOrder: (lastService?.sortOrder ?? -1) + 1,
+          },
+        }),
+      );
+    } catch (error) {
+      await deletePublicObject(imageUrl);
+      return { error: getDbErrorMessage(error) };
+    }
 
     revalidatePath("/admin/services");
     return { success: true };
@@ -182,9 +188,11 @@ export async function updateServiceAction(
     }
 
     let imageUrl = existingService.imageUrl;
+    const previousImageUrl = existingService.imageUrl;
     const imageFile = formData.get("image");
+    const replacingImage = imageFile instanceof File && imageFile.size > 0;
 
-    if (imageFile instanceof File && imageFile.size > 0) {
+    if (replacingImage) {
       try {
         imageUrl = await saveServiceImage(serviceId, imageFile);
       } catch (error) {
@@ -198,21 +206,33 @@ export async function updateServiceAction(
       return { error: "Service image is required." };
     }
 
-    await withDbRetry(() =>
-      prisma.service.update({
-        where: { id: serviceId },
-        data: {
-          title,
-          description,
-          note,
-          items,
-          amountNgn,
-          duration,
-          imageUrl,
-          status: status as ServiceStatus,
-        },
-      }),
-    );
+    try {
+      await withDbRetry(() =>
+        prisma.service.update({
+          where: { id: serviceId },
+          data: {
+            title,
+            description,
+            note,
+            items,
+            amountNgn,
+            duration,
+            imageUrl,
+            status: status as ServiceStatus,
+          },
+        }),
+      );
+    } catch (error) {
+      if (replacingImage && imageUrl !== previousImageUrl) {
+        await deletePublicObject(imageUrl);
+      }
+
+      return { error: getDbErrorMessage(error) };
+    }
+
+    if (replacingImage && previousImageUrl && previousImageUrl !== imageUrl) {
+      await deletePublicObject(previousImageUrl);
+    }
 
     revalidatePath("/admin/services");
     revalidatePath(`/services/${serviceId}`);

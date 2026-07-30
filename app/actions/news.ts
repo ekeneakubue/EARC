@@ -6,6 +6,7 @@ import { getDbErrorMessage, withDbRetry } from "../lib/db";
 import { ContentStatus } from "../lib/enums";
 import { saveNewsImage } from "../lib/news-image";
 import { prisma } from "../lib/prisma";
+import { deletePublicObject } from "../lib/r2";
 
 export type CreateNewsState = {
   error?: string;
@@ -104,8 +105,10 @@ export async function createNewsAction(
       }),
     );
 
+    let imageUrl = "";
+
     try {
-      const imageUrl = await saveNewsImage(item.id, image);
+      imageUrl = await saveNewsImage(item.id, image);
 
       await withDbRetry(() =>
         prisma.newsItem.update({
@@ -115,6 +118,7 @@ export async function createNewsAction(
       );
     } catch (error) {
       await withDbRetry(() => prisma.newsItem.delete({ where: { id: item.id } }));
+      await deletePublicObject(imageUrl);
       return {
         error: error instanceof Error ? error.message : "Failed to upload news image.",
       };
@@ -162,9 +166,11 @@ export async function updateNewsAction(
     }
 
     let imageUrl = existing.imageUrl;
+    const previousImageUrl = existing.imageUrl;
     const image = formData.get("image");
+    const replacingImage = image instanceof File && image.size > 0;
 
-    if (image instanceof File && image.size > 0) {
+    if (replacingImage) {
       try {
         imageUrl = await saveNewsImage(newsId, image);
       } catch (error) {
@@ -174,19 +180,31 @@ export async function updateNewsAction(
       }
     }
 
-    await withDbRetry(() =>
-      prisma.newsItem.update({
-        where: { id: newsId },
-        data: {
-          category: parsed.category,
-          title: parsed.title,
-          description: parsed.description,
-          fullDescription: parsed.fullDescription,
-          imageUrl,
-          status: parsed.status,
-        },
-      }),
-    );
+    try {
+      await withDbRetry(() =>
+        prisma.newsItem.update({
+          where: { id: newsId },
+          data: {
+            category: parsed.category,
+            title: parsed.title,
+            description: parsed.description,
+            fullDescription: parsed.fullDescription,
+            imageUrl,
+            status: parsed.status,
+          },
+        }),
+      );
+    } catch (error) {
+      if (replacingImage && imageUrl !== previousImageUrl) {
+        await deletePublicObject(imageUrl);
+      }
+
+      return { error: getDbErrorMessage(error) };
+    }
+
+    if (replacingImage && previousImageUrl && previousImageUrl !== imageUrl) {
+      await deletePublicObject(previousImageUrl);
+    }
 
     revalidateNewsPaths(newsId);
     return { success: true };
@@ -210,7 +228,7 @@ export async function deleteNewsAction(newsId: string): Promise<DeleteNewsResult
     const existing = await withDbRetry(() =>
       prisma.newsItem.findUnique({
         where: { id: newsId },
-        select: { id: true },
+        select: { id: true, imageUrl: true },
       }),
     );
 
@@ -219,6 +237,7 @@ export async function deleteNewsAction(newsId: string): Promise<DeleteNewsResult
     }
 
     await withDbRetry(() => prisma.newsItem.delete({ where: { id: newsId } }));
+    await deletePublicObject(existing.imageUrl);
 
     revalidateNewsPaths(newsId);
     return { success: true };
